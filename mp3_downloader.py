@@ -1,17 +1,18 @@
 from time import time
-import requests
+from requests_html import HTMLSession
 from dotenv import load_dotenv
 import os
 
 
 class Mp3Downloader:
-    def __init__(self, download_url, title, format):
+    def __init__(self, download_url, title, format, session=HTMLSession()):
         self.download_url = download_url
         self.title = title
         self.format = format
+        self.session = session
 
     def download(self, path=""):
-        r = requests.get(self.download_url)
+        r = self.session.get(self.download_url)
         download_path = os.path.join(path, f"{self.title}.{self.format}")
         with open(download_path, "wb") as download_file:
             download_file.write(r.content)
@@ -23,7 +24,7 @@ class Mp3Getter:
     def __init__(self, headers={"Referer": "https://mp3-convert.org"}, payload={"r": "hudar1255"}):
         self.payload = payload
         self.headers = headers
-        self.session = requests.session()
+        self.session = HTMLSession()
 
     def get(self, link):
         self.payload["id"] = link.split("/")[-1]
