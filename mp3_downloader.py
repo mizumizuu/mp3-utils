@@ -26,15 +26,23 @@ class Mp3Getter:
         self.headers = headers
         self.session = HTMLSession()
 
+    def get_title(self, link):
+        r = self.session.get(link)
+        title = r.html.find("title", first=True).text
+        title = title.split(" - YouTube")[0]
+        return title
+
     def get(self, link):
         self.payload["id"] = link.split("/")[-1]
         self.payload["t"] = int(time() * 1000)
         self.response = self.session.get(self.main_url, params=self.payload, headers=self.headers)
         self.data = self.response.json()
+        self.data["title"] = self.get_title(link=link)
         return Mp3Downloader(
             self.data.get("download_url"),
             self.data.get("title"),
-            self.data.get("format")
+            self.data.get("format"),
+            self.session
         )
 
 
